@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Amsterdam Podcast Studio — cinematic editorial design system.
+All colors MUST be HSL. */
+
+@layer base {
+  :root {
+    --background: 40 22% 97%;
+    --foreground: 220 12% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 12% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 12% 10%;
+
+    --primary: 20 88% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 38 18% 92%;
+    --secondary-foreground: 220 12% 12%;
+
+    --muted: 38 16% 93%;
+    --muted-foreground: 220 8% 38%;
+
+    --accent: 20 60% 94%;
+    --accent-foreground: 20 60% 22%;
+
+    --destructive: 0 70% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 36 12% 87%;
+    --input: 36 12% 87%;
+    --ring: 20 88% 55%;
+
+    /* cinematic dark surfaces */
+    --ink: 220 14% 8%;
+    --ink-foreground: 40 20% 96%;
+    --ink-muted: 40 10% 72%;
+    --ink-border: 220 10% 20%;
+
+    /* mid neutral surface */
+    --surface: 36 16% 90%;
+    --surface-foreground: 220 12% 12%;
+
+    --radius: 0.75rem;
+
+    --shadow-soft: 0 2px 12px hsl(220 14% 8% / 0.06);
+    --shadow-lift: 0 18px 50px -20px hsl(220 14% 8% / 0.35);
+    --overlay-hero: linear-gradient(180deg, hsl(220 14% 6% / 0.55) 0%, hsl(220 14% 6% / 0.35) 40%, hsl(220 14% 6% / 0.7) 100%);
+  }
+
+  .dark {
+    --background: 220 14% 8%;
+    --foreground: 40 20% 96%;
+    --card: 220 14% 11%;
+    --card-foreground: 40 20% 96%;
+    --popover: 220 14% 11%;
+    --popover-foreground: 40 20% 96%;
+    --primary: 20 88% 58%;
+    --primary-foreground: 220 14% 8%;
+    --secondary: 220 10% 16%;
+    --secondary-foreground: 40 20% 96%;
+    --muted: 220 10% 16%;
+    --muted-foreground: 40 10% 72%;
+    --accent: 20 40% 20%;
+    --accent-foreground: 20 80% 88%;
+    --border: 220 10% 20%;
+    --input: 220 10% 20%;
+    --ring: 20 88% 58%;
+    --surface: 220 12% 13%;
+    --surface-foreground: 40 20% 96%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tightest;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.25);
+  }
+}
+
+@layer utilities {
+  .smooth-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .section-label {
+    @apply text-xs md:text-sm uppercase tracking-[0.18em] font-semibold;
+  }
+
+  .lead {
+    @apply text-lg md:text-xl leading-relaxed;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-grain {
+    background-image: radial-gradient(hsl(var(--ink) / 0.05) 1px, transparent 1px);
+    background-size: 4px 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
