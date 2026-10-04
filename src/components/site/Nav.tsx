@@ -63,22 +63,22 @@ const Nav = () => {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <nav className="container mx-auto px-6 lg:px-10">
+      <nav className="container mx-auto px-4 sm:px-6 lg:px-10">
         <div className={`flex items-center justify-between transition-all duration-500 ${solid ? "py-3.5" : "py-6"}`}>
           <button
             onClick={() => (isHome ? window.scrollTo({ top: 0, behavior: "smooth" }) : navigate("/"))}
-            className="flex items-center gap-2.5 text-ink-foreground"
+            className="flex min-w-0 items-center gap-2 sm:gap-2.5 text-left text-ink-foreground"
           >
-            <AudioLines className="h-5 w-5 text-primary" />
-            <span className="text-[15px] font-semibold tracking-tight">Amsterdam Studio Podcast</span>
+            <AudioLines className="h-5 w-5 shrink-0 text-primary" />
+            <span className="text-[13px] sm:text-[15px] font-semibold tracking-tight">Amsterdam Studio Podcast</span>
           </button>
 
-          <div className="hidden lg:flex items-center gap-7">
+          <div className="hidden xl:flex shrink-0 items-center gap-4 min-[1400px]:gap-7">
             {NAV_IDS.map((id) => (
               <button
                 key={id}
                 onClick={() => goTo(id)}
-                className="text-[15px] font-medium text-ink-foreground/85 hover:text-ink-foreground smooth-hover relative after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100"
+                className="whitespace-nowrap text-[15px] font-medium text-ink-foreground/85 hover:text-ink-foreground smooth-hover relative after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100"
               >
                 {labels[id]}
               </button>
@@ -94,11 +94,13 @@ const Nav = () => {
             </a>
           </div>
 
-          <div className="flex items-center gap-3 lg:hidden">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3 xl:hidden">
             <LangSwitch />
             <button
               onClick={() => setOpen((v) => !v)}
               aria-label={t.nav.menu}
+              aria-expanded={open}
+              aria-controls="mobile-navigation"
               className="text-ink-foreground p-1"
             >
               {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -113,9 +115,10 @@ const Nav = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:hidden overflow-hidden"
+              id="mobile-navigation"
+              className="xl:hidden overflow-hidden"
             >
-              <div className="flex flex-col gap-1 pb-6 pt-2">
+              <div className="flex max-h-[calc(100dvh-80px)] flex-col gap-1 overflow-y-auto overscroll-contain pb-6 pt-2">
                 {NAV_IDS.map((id, i) => (
                   <motion.button
                     key={id}

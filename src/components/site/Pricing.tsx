@@ -16,7 +16,7 @@ const Pricing = () => {
   const amountInView = useInView(amountRef, { once: true, amount: 0.4 });
 
   return (
-    <section id="prijzen" ref={ref} className="relative overflow-hidden bg-surface text-surface-foreground py-24 lg:py-36">
+    <section id="prijzen" ref={ref} className="relative overflow-hidden bg-surface text-surface-foreground py-16 sm:py-24 lg:py-36">
       <div className="container mx-auto px-6 lg:px-10">
         <motion.span
           initial={{ opacity: 0, y: 14 }}
@@ -29,19 +29,22 @@ const Pricing = () => {
         </motion.span>
 
         <div className="mt-10 grid gap-12 lg:grid-cols-12 lg:gap-16 items-end">
-          <div className="lg:col-span-7">
-            <div className="overflow-hidden">
+          <div className="min-w-0 lg:col-span-7">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.4 }}
+              className="overflow-hidden"
+            >
               <motion.h2
-                initial={{ opacity: 0, y: 48 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
+                variants={{ hidden: { opacity: 0, y: 48 }, visible: { opacity: 1, y: 0 } }}
                 transition={{ duration: 0.9, ease: EASE }}
                 className="text-4xl md:text-6xl font-semibold leading-[1.02] tracking-tight"
               >
                 {t.pricing.titleA}{" "}
                 <span className="text-muted-foreground font-normal italic">{t.pricing.titleB}</span>
               </motion.h2>
-            </div>
+            </motion.div>
 
             <motion.p
               initial={{ opacity: 0, y: 24 }}
@@ -74,22 +77,22 @@ const Pricing = () => {
                 href={CAL_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-foreground px-9 py-4.5 text-base font-semibold text-background transition-colors duration-300 hover:bg-primary hover:text-primary-foreground"
+                className="group relative inline-flex max-w-full items-center gap-3 overflow-hidden rounded-full bg-foreground px-6 sm:px-9 py-[1.125rem] text-base font-semibold text-background transition-colors duration-300 hover:bg-primary hover:text-primary-foreground"
               >
                 <span className="relative z-10">{t.pricing.cta}</span>
-                <ArrowUpRight className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:rotate-12" />
+                <ArrowUpRight className="relative z-10 h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:rotate-12" />
               </a>
             </motion.div>
           </div>
 
-          <div className="lg:col-span-5 flex justify-start lg:justify-end">
+          <div className="min-w-0 lg:col-span-5 flex justify-start lg:justify-end">
             <motion.div style={{ y: amountY }} className="relative">
               <div ref={amountRef} className="overflow-hidden">
                 <motion.span
                   initial={{ opacity: 0, y: 90, rotate: -3 }}
                   animate={amountInView ? { opacity: 1, y: 0, rotate: -2 } : undefined}
                   transition={{ duration: 1.1, delay: 0.1, ease: EASE }}
-                  className="block font-display text-[38vw] lg:text-[13vw] leading-[0.8] text-primary select-none"
+                  className="block font-display text-[min(38vw,18rem)] lg:text-[min(13vw,14rem)] leading-[0.8] text-primary select-none"
                 >
                   {t.pricing.amount}
                 </motion.span>

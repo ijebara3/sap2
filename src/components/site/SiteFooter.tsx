@@ -20,9 +20,9 @@ const SiteFooter = () => {
     <footer className="bg-ink text-ink-foreground border-t border-ink-border">
       <div className="container mx-auto px-6 lg:px-10 py-16">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
-          <div>
+          <div className="min-w-0 lg:shrink-0">
             <div className="flex items-center gap-2.5">
-              <AudioLines className="h-5 w-5 text-primary" />
+              <AudioLines className="h-5 w-5 shrink-0 text-primary" />
               <span className="text-lg font-semibold tracking-tight">Amsterdam Studio Podcast</span>
             </div>
             <p className="mt-4 text-ink-foreground/75 text-[17px] leading-relaxed">
@@ -36,7 +36,7 @@ const SiteFooter = () => {
             </a>
           </div>
 
-          <nav className="flex flex-wrap gap-x-8 gap-y-3 text-[17px]">
+          <nav className="flex min-w-0 flex-wrap gap-x-8 gap-y-3 text-[17px]">
             <button onClick={() => goTo("studio")} className="text-ink-foreground/80 hover:text-primary smooth-hover">
               {t.footer.studio}
             </button>

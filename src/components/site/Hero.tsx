@@ -4,7 +4,7 @@ import { ArrowDown, ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { CAL_URL } from "@/i18n/translations";
 import heroVideo from "@/assets/hero-studio.mp4.asset.json";
-import heroPoster from "@/assets/studio-1.jpg";
+import { studioImages } from "@/lib/studio-images";
 
 const Hero = () => {
   const { t } = useLang();
@@ -17,17 +17,24 @@ const Hero = () => {
   const ease = [0.22, 1, 0.36, 1] as const;
 
   return (
-    <section ref={ref} className="relative h-[100svh] w-full overflow-hidden bg-ink">
+    <section ref={ref} className="relative min-h-[100svh] w-full overflow-hidden bg-ink">
       <motion.div style={{ y }} className="absolute inset-0 h-[118%]">
+        <img
+          {...studioImages[0]}
+          sizes="100vw"
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <video
-          className="h-full w-full object-cover"
+          className="relative h-full w-full object-cover"
           src={heroVideo.url}
-          poster={heroPoster}
           autoPlay
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden="true"
         />
         <div
@@ -41,7 +48,7 @@ const Hero = () => {
 
       <motion.div
         style={{ opacity }}
-        className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center"
+        className="relative z-10 flex min-h-[100svh] flex-col items-center justify-center px-6 pt-32 pb-40 lg:py-32 text-center"
       >
         <motion.span
           initial={{ opacity: 0, y: 14 }}
@@ -52,7 +59,7 @@ const Hero = () => {
           {t.hero.label}
         </motion.span>
 
-        <h1 className="max-w-5xl text-4xl sm:text-6xl lg:text-7xl font-semibold leading-[1.03] text-ink-foreground">
+        <h1 className="w-full max-w-5xl text-[clamp(1.875rem,8vw,2.25rem)] sm:text-6xl lg:text-7xl font-semibold leading-[1.03] text-ink-foreground">
           {[t.hero.title1, t.hero.title2, t.hero.title3].map((line, i) => (
             <span key={line} className="block overflow-hidden">
               <motion.span

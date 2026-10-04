@@ -16,10 +16,10 @@ const LocationContact = () => {
   const addressLines = ["Oeverpad 300", "1068 PJ Amsterdam", t.location.name === "Amsterdam Studio Podcast" ? "Nederland" : "Netherlands"];
 
   return (
-    <section id="locatie" className="bg-background py-24 lg:py-32">
+    <section id="locatie" className="bg-background py-16 sm:py-24 lg:py-32">
       <div ref={ref} className="container mx-auto px-6 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-stretch">
-          <div className="lg:col-span-5">
+          <div className="min-w-0 lg:col-span-5">
             <motion.span
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -63,10 +63,10 @@ const LocationContact = () => {
               <p className="section-label text-muted-foreground">{t.location.emailLabel}</p>
               <a
                 href={`mailto:${t.location.email}`}
-                className="mt-3 inline-flex items-center gap-2 text-lg font-semibold smooth-hover hover:text-primary"
+                className="mt-3 flex w-fit max-w-full items-center gap-2 text-base sm:text-lg font-semibold smooth-hover hover:text-primary"
               >
-                <Mail className="h-4 w-4" />
-                {t.location.email}
+                <Mail className="h-4 w-4 shrink-0" />
+                <span className="min-w-0 [overflow-wrap:anywhere]">{t.location.email}</span>
               </a>
             </div>
 
@@ -89,12 +89,12 @@ const LocationContact = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-7 overflow-hidden rounded-lg border border-border shadow-lift min-h-[380px]"
+            className="min-w-0 lg:col-span-7 overflow-hidden rounded-lg border border-border shadow-lift"
           >
             <iframe
               title={t.location.mapTitle}
               src={MAP_SRC}
-              className="h-full min-h-[380px] w-full lg:min-h-[560px]"
+              className="block h-full min-h-[300px] sm:min-h-[380px] w-full lg:min-h-[560px]"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               style={{ border: 0 }}

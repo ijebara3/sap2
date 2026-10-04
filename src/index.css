@@ -89,10 +89,19 @@ All colors MUST be HSL. */
 
   h1, h2, h3, h4 {
     @apply font-display tracking-tightest;
+    overflow-wrap: anywhere;
   }
 
   html {
     scroll-behavior: smooth;
+  }
+
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  a[href^="mailto:"] {
+    overflow-wrap: anywhere;
   }
 
   ::selection {

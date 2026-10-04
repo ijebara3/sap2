@@ -11,7 +11,7 @@ const Motto = () => {
   const drift = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   return (
-    <section id="book-arrive-record" className="bg-ink text-ink-foreground py-28 lg:py-40 overflow-hidden">
+    <section id="book-arrive-record" className="bg-ink text-ink-foreground py-20 sm:py-28 lg:py-40 overflow-hidden">
       <div ref={ref} className="container mx-auto px-6 lg:px-10">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
@@ -25,20 +25,23 @@ const Motto = () => {
 
         <motion.div style={{ x: drift }} className="flex flex-col gap-1 lg:gap-3">
           {WORDS.map((word, i) => (
-            <span key={word} className="block overflow-hidden">
+            <motion.span
+              key={word}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.15 }}
+              className="block overflow-hidden"
+            >
               <motion.span
-                initial={{ y: 60, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true, amount: 0.15 }}
-
+                variants={{ hidden: { y: 60, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
                 transition={{ duration: 0.8, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className={`block font-display font-semibold tracking-tightest leading-[0.95] text-[16vw] lg:text-[11vw] ${
+                className={`block font-display font-semibold tracking-tightest leading-[0.95] text-[16vw] lg:text-[min(11vw,12rem)] ${
                   i === 1 ? "lg:pl-[12%] text-primary" : i === 2 ? "lg:pl-[24%]" : ""
                 }`}
               >
                 {word}
               </motion.span>
-            </span>
+            </motion.span>
           ))}
         </motion.div>
 

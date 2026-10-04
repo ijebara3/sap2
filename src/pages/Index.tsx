@@ -26,7 +26,7 @@ const Index = () => {
   }, [hash]);
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen overflow-x-clip">
       <Nav />
       <main>
         <h1 className="sr-only">Podcaststudio Amsterdam — professionele podcast opnemen aan het Oeverpad</h1>

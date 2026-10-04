@@ -13,7 +13,7 @@ const LangSwitch = ({ tone = "light" }: Props) => {
 
   return (
     <div
-      className={`flex items-center gap-0.5 rounded-full border p-0.5 ${
+      className={`flex w-fit shrink-0 items-center gap-0.5 rounded-full border p-0.5 ${
         tone === "light" ? "border-ink-border" : "border-border"
       }`}
       role="group"

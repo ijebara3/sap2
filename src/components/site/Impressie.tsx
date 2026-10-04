@@ -1,28 +1,33 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
-import studio1 from "@/assets/studio-1.jpg";
-import studio2 from "@/assets/studio-2.jpg";
-import studio3 from "@/assets/studio-3.jpg";
-import studio4 from "@/assets/studio-4.jpg";
+import { studioImages, fullWidthImageSizes } from "@/lib/studio-images";
 
 const PHOTOS = [
-  { src: studio1, alt: "Opnametafel met twee microfoons en camera in de studio" },
-  { src: studio3, alt: "Zithoek van de podcaststudio met studioverlichting" },
-  { src: studio4, alt: "Camera op statief gericht op de opnameplek" },
-  { src: studio2, alt: "Detailopname van een professionele studiomicrofoon" },
+  { ...studioImages[0], alt: "Opnametafel met twee microfoons en camera in de studio" },
+  { ...studioImages[2], alt: "Zithoek van de podcaststudio met studioverlichting" },
+  { ...studioImages[3], alt: "Camera op statief gericht op de opnameplek" },
+  { ...studioImages[1], alt: "Detailopname van een professionele studiomicrofoon" },
+  // Six detail crops from the original studio photos; no stock or invented rooms.
+  { ...studioImages[4], alt: "Detail van de opnameapparatuur op de studiotafel" },
+  { ...studioImages[5], alt: "Microfoon en zitplaats aan de opnametafel" },
+  { ...studioImages[6], alt: "Close-up van de microfoon en microfoonhouder" },
+  { ...studioImages[7], alt: "Bloemen en opnameapparatuur op de tafel" },
+  { ...studioImages[8], alt: "Zithoek met microfoons en salontafel" },
+  { ...studioImages[9], alt: "Fauteuil met microfoon in de podcaststudio" },
 ];
 
 const Impressie = () => {
   const { t } = useLang();
+  const reduce = useReducedMotion();
   const [[index, dir], setState] = useState<[number, number]>([0, 0]);
 
   const paginate = (delta: number) =>
     setState(([i]) => [(i + delta + PHOTOS.length) % PHOTOS.length, delta]);
 
   return (
-    <section id="impressie" className="bg-ink text-ink-foreground py-24 lg:py-32 overflow-hidden">
+    <section id="impressie" className="bg-ink text-ink-foreground py-16 sm:py-24 lg:py-32 overflow-hidden">
       <div className="container mx-auto px-6 lg:px-10">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <motion.div
@@ -54,7 +59,18 @@ const Impressie = () => {
           </div>
         </div>
 
-        <div className="relative mt-12 h-[52vh] min-h-[340px] lg:h-[68vh]">
+        <div
+          role="region"
+          aria-label={t.impression.label}
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+              event.preventDefault();
+              paginate(event.key === "ArrowLeft" ? -1 : 1);
+            }
+          }}
+          className="relative mt-8 sm:mt-12 aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-[68vh] lg:min-h-[340px] outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-ink rounded-xl"
+        >
           <AnimatePresence initial={false} custom={dir} mode="popLayout">
             <motion.div
               key={index}
@@ -66,16 +82,22 @@ const Impressie = () => {
                 if (info.offset.x < -60) paginate(1);
                 else if (info.offset.x > 60) paginate(-1);
               }}
-              initial={{ x: dir >= 0 ? "62%" : "-62%", opacity: 0, scale: 0.9, rotate: dir >= 0 ? 3 : -3 }}
+              initial={reduce ? { opacity: 0 } : { x: dir >= 0 ? "62%" : "-62%", opacity: 0, scale: 0.9, rotate: dir >= 0 ? 3 : -3 }}
               animate={{ x: 0, opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ x: dir >= 0 ? "-45%" : "45%", opacity: 0, scale: 0.92, rotate: dir >= 0 ? -2 : 2 }}
-              transition={{ type: "spring", stiffness: 190, damping: 26, mass: 0.9 }}
-              className="absolute inset-0 cursor-grab active:cursor-grabbing overflow-hidden rounded-xl shadow-lift"
+              exit={reduce ? { opacity: 0 } : { x: dir >= 0 ? "-45%" : "45%", opacity: 0, scale: 0.92, rotate: dir >= 0 ? -2 : 2 }}
+              transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 190, damping: 26, mass: 0.9 }}
+              className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing overflow-hidden rounded-xl shadow-lift"
             >
               <img
                 src={PHOTOS[index].src}
+                srcSet={PHOTOS[index].srcSet}
+                sizes={fullWidthImageSizes}
+                width={PHOTOS[index].width}
+                height={PHOTOS[index].height}
                 alt={PHOTOS[index].alt}
                 loading="lazy"
+                decoding="async"
+                draggable={false}
                 className="h-full w-full object-cover select-none pointer-events-none"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent" />
@@ -83,20 +105,21 @@ const Impressie = () => {
           </AnimatePresence>
         </div>
 
-        <div className="mt-8 flex items-center gap-6">
-          <div className="font-display text-3xl font-semibold tabular-nums">
+        <div className="mt-6 sm:mt-8 flex items-center gap-4 sm:gap-6">
+          <div aria-live="polite" aria-atomic="true" className="shrink-0 font-display text-3xl font-semibold tabular-nums">
             <motion.span key={index} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="inline-block">
               {String(index + 1).padStart(2, "0")}
             </motion.span>
             <span className="text-ink-foreground/40 text-xl"> / {String(PHOTOS.length).padStart(2, "0")}</span>
           </div>
-          <div className="flex flex-1 gap-2">
+          <div className="grid min-w-0 flex-1 grid-cols-5 sm:grid-cols-10 gap-x-2">
             {PHOTOS.map((p, i) => (
               <button
                 key={p.alt}
                 onClick={() => setState([i, i > index ? 1 : -1])}
                 aria-label={`${t.impression.label} ${i + 1}`}
-                className="group flex-1 py-3"
+                aria-current={i === index ? "true" : undefined}
+                className="group min-w-0 py-3"
               >
                 <span className="block h-[3px] w-full overflow-hidden rounded-full bg-ink-foreground/20">
                   <motion.span

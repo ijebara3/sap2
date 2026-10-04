@@ -1,9 +1,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useLang } from "@/i18n/LanguageContext";
-import studio1 from "@/assets/studio-1.jpg";
-import studio2 from "@/assets/studio-2.jpg";
-import studio3 from "@/assets/studio-3.jpg";
+import { studioImages } from "@/lib/studio-images";
 
 const Studio = () => {
   const { t } = useLang();
@@ -16,7 +14,7 @@ const Studio = () => {
   const yC = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["12%", "-6%"]);
 
   return (
-    <section id="studio" className="bg-background py-24 lg:py-32">
+    <section id="studio" className="bg-background py-16 sm:py-24 lg:py-32">
       <div ref={ref} className="container mx-auto px-6 lg:px-10">
         <div className="grid gap-14 lg:grid-cols-12 lg:gap-16 items-start">
           <motion.div
@@ -24,7 +22,7 @@ const Studio = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.7 }}
-            className="lg:col-span-5 lg:sticky lg:top-28"
+            className="min-w-0 lg:col-span-5 lg:sticky lg:top-28"
           >
             <span className="section-label text-primary">{t.studio.label}</span>
             <h2 className="mt-5 text-3xl md:text-5xl font-semibold leading-[1.08] text-balance">
@@ -48,7 +46,7 @@ const Studio = () => {
             </ul>
           </motion.div>
 
-          <div className="lg:col-span-7 relative">
+          <div className="min-w-0 lg:col-span-7 relative">
             <motion.div
               style={{ y: yA }}
               initial={{ opacity: 0, scale: 0.97 }}
@@ -58,12 +56,12 @@ const Studio = () => {
               className="relative z-10 overflow-hidden rounded-lg shadow-lift"
             >
               <img
-                src={studio1}
+                {...studioImages[0]}
+                sizes="(min-width: 1400px) 730px, (min-width: 1024px) 55vw, calc(100vw - 48px)"
                 alt="Opnametafel met microfoons in de podcaststudio in Amsterdam"
                 loading="lazy"
-                width={1600}
-                height={1104}
-                className="w-full h-[46vh] lg:h-[60vh] object-cover smooth-hover hover:scale-[1.03]"
+                decoding="async"
+                className="w-full aspect-[4/3] sm:aspect-auto sm:h-[46vh] sm:min-h-[280px] lg:h-[60vh] lg:min-h-0 object-cover smooth-hover hover:scale-[1.03]"
               />
             </motion.div>
 
@@ -73,15 +71,15 @@ const Studio = () => {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.9, delay: 0.15 }}
-              className="absolute -bottom-16 -left-4 lg:-left-24 z-20 w-40 lg:w-60 overflow-hidden rounded-lg shadow-lift border-4 border-background"
+              className="absolute -bottom-16 left-0 sm:-left-4 lg:-left-24 z-20 w-32 sm:w-40 lg:w-60 overflow-hidden rounded-lg shadow-lift border-4 border-background"
             >
               <img
-                src={studio2}
+                {...studioImages[1]}
+                sizes="(min-width: 1024px) 240px, (min-width: 640px) 160px, 128px"
                 alt="Detail van een professionele microfoon in de studio"
                 loading="lazy"
-                width={1408}
-                height={1760}
-                className="w-full h-56 lg:h-80 object-cover"
+                decoding="async"
+                className="w-full h-44 sm:h-56 lg:h-80 object-cover"
               />
             </motion.div>
 
@@ -94,11 +92,11 @@ const Studio = () => {
               className="hidden lg:block absolute -bottom-24 right-0 z-0 w-72 overflow-hidden rounded-lg shadow-lift border-4 border-background"
             >
               <img
-                src={studio3}
+                {...studioImages[2]}
+                sizes="288px"
                 alt="Zithoek van de podcaststudio met opnameopstelling"
                 loading="lazy"
-                width={1600}
-                height={1104}
+                decoding="async"
                 className="w-full h-48 object-cover"
               />
             </motion.div>
