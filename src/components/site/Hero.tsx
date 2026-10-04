@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { CAL_URL } from "@/i18n/translations";
@@ -8,6 +8,7 @@ import { studioImages } from "@/lib/studio-images";
 
 const Hero = () => {
   const { t } = useLang();
+  const [videoFailed, setVideoFailed] = useState(false);
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -30,6 +31,9 @@ const Hero = () => {
         <video
           className="relative h-full w-full object-cover"
           src={heroVideo.url}
+          poster={studioImages[0].src}
+          hidden={videoFailed}
+          onError={() => setVideoFailed(true)}
           autoPlay
           loop
           muted
