@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, AudioLines } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,6 +19,8 @@ export const NAV_IDS = [
 const Nav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const pendingSection = useRef<string | null>(null);
   const { t } = useLang();
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,6 +32,25 @@ const Nav = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1280px)");
+    const closeOnDesktop = () => { if (desktop.matches) setOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        menuButton.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
 
   const labels: Record<(typeof NAV_IDS)[number], string> = {
     studio: t.nav.studio,
@@ -45,6 +66,12 @@ const Nav = () => {
     setOpen(false);
     if (!isHome) {
       navigate(`/#${id}`);
+      return;
+    }
+    if (open) {
+      // Starting a smooth document scroll while the touch menu collapses can
+      // cancel that scroll in mobile browsers. Finish the existing exit first.
+      pendingSection.current = id;
       return;
     }
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -97,18 +124,23 @@ const Nav = () => {
           <div className="flex shrink-0 items-center gap-1 sm:gap-3 xl:hidden">
             <LangSwitch />
             <button
+              ref={menuButton}
               onClick={() => setOpen((v) => !v)}
               aria-label={t.nav.menu}
               aria-expanded={open}
               aria-controls="mobile-navigation"
-              className="text-ink-foreground p-1"
+              className="text-ink-foreground p-2.5"
             >
               {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
-        <AnimatePresence>
+        <AnimatePresence onExitComplete={() => {
+          const id = pendingSection.current;
+          pendingSection.current = null;
+          if (id) document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+        }}>
           {open && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}

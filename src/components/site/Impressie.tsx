@@ -1,27 +1,54 @@
-import { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, useInView, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { studioImages, fullWidthImageSizes } from "@/lib/studio-images";
+import { impressionImages } from "@/lib/impression-images";
+import { prepareImage } from "@/lib/responsive-image";
+import { usePreparedImage } from "@/hooks/use-prepared-image";
 
 const PHOTOS = [
   { ...studioImages[0], alt: "Opnametafel met twee microfoons en camera in de studio" },
   { ...studioImages[2], alt: "Zithoek van de podcaststudio met studioverlichting" },
   { ...studioImages[3], alt: "Camera op statief gericht op de opnameplek" },
   { ...studioImages[1], alt: "Detailopname van een professionele studiomicrofoon" },
-  // Six detail crops from the original studio photos; no stock or invented rooms.
-  { ...studioImages[4], alt: "Detail van de opnameapparatuur op de studiotafel" },
-  { ...studioImages[5], alt: "Microfoon en zitplaats aan de opnametafel" },
-  { ...studioImages[6], alt: "Close-up van de microfoon en microfoonhouder" },
-  { ...studioImages[7], alt: "Bloemen en opnameapparatuur op de tafel" },
-  { ...studioImages[8], alt: "Zithoek met microfoons en salontafel" },
-  { ...studioImages[9], alt: "Fauteuil met microfoon in de podcaststudio" },
+  { ...impressionImages[0], alt: "Vier microfoons rond de opnametafel met blauwe bloemen" },
+  { ...impressionImages[1], alt: "Microfoon bij de zithoek met het studiobanner op de achtergrond" },
+  { ...impressionImages[2], alt: "Overzicht van de zithoek met fauteuil, bank en studiomicrofoons" },
+  { ...impressionImages[3], alt: "Bank met twee microfoons en blauwe bloemen op de salontafel" },
+  { ...impressionImages[4], alt: "Zithoek naast de houten kast en plant" },
+  { ...impressionImages[5], alt: "Opnametafel met vier microfoons en audioapparatuur vanuit de zijkant" },
+  { ...impressionImages[6], alt: "Microfoons en blauwe bloemen voor het scherm in de studio" },
+  { ...impressionImages[7], alt: "Close-up van een RODE-microfoon met het mengpaneel op de achtergrond" },
+  { ...impressionImages[8], alt: "Volledige opnametafel met stoelen tussen de twee studiobanners" },
+  { ...impressionImages[9], alt: "Ruim overzicht van de opnametafel, stoelen en studio-inrichting" },
 ];
 
 const Impressie = () => {
   const { t } = useLang();
   const reduce = useReducedMotion();
   const [[index, dir], setState] = useState<[number, number]>([0, 0]);
+  const visibleIndex = usePreparedImage(index, PHOTOS, fullWidthImageSizes);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(galleryRef, { amount: 0.25 });
+  const [isInteracting, setIsInteracting] = useState(false);
+  const [isHidden, setIsHidden] = useState(document.hidden);
+
+  useEffect(() => {
+    const updateVisibility = () => setIsHidden(document.hidden);
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () => document.removeEventListener("visibilitychange", updateVisibility);
+  }, []);
+
+  useEffect(() => {
+    if (!isInView || isInteracting || isHidden || visibleIndex !== index) return;
+    // Warm only the next responsive image so automatic transitions do not flash blank.
+    void prepareImage(PHOTOS[(index + 1) % PHOTOS.length], fullWidthImageSizes);
+    const timer = window.setTimeout(() => {
+      setState(([i]) => [(i + 1) % PHOTOS.length, 1]);
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [index, visibleIndex, dir, isInView, isInteracting, isHidden]);
 
   const paginate = (delta: number) =>
     setState(([i]) => [(i + delta + PHOTOS.length) % PHOTOS.length, delta]);
@@ -60,9 +87,13 @@ const Impressie = () => {
         </div>
 
         <div
+          ref={galleryRef}
           role="region"
           aria-label={t.impression.label}
           tabIndex={0}
+          onPointerDownCapture={() => setIsInteracting(true)}
+          onPointerUpCapture={() => setIsInteracting(false)}
+          onPointerCancelCapture={() => setIsInteracting(false)}
           onKeyDown={(event) => {
             if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
               event.preventDefault();
@@ -73,12 +104,13 @@ const Impressie = () => {
         >
           <AnimatePresence initial={false} custom={dir} mode="popLayout">
             <motion.div
-              key={index}
+              key={visibleIndex}
               custom={dir}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.18}
               onDragEnd={(_, info) => {
+                setIsInteracting(false);
                 if (info.offset.x < -60) paginate(1);
                 else if (info.offset.x > 60) paginate(-1);
               }}
@@ -89,12 +121,8 @@ const Impressie = () => {
               className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing overflow-hidden rounded-xl shadow-lift"
             >
               <img
-                src={PHOTOS[index].src}
-                srcSet={PHOTOS[index].srcSet}
+                {...PHOTOS[visibleIndex]}
                 sizes={fullWidthImageSizes}
-                width={PHOTOS[index].width}
-                height={PHOTOS[index].height}
-                alt={PHOTOS[index].alt}
                 loading="lazy"
                 decoding="async"
                 draggable={false}
@@ -106,20 +134,20 @@ const Impressie = () => {
         </div>
 
         <div className="mt-6 sm:mt-8 flex items-center gap-4 sm:gap-6">
-          <div aria-live="polite" aria-atomic="true" className="shrink-0 font-display text-3xl font-semibold tabular-nums">
+          <div className="shrink-0 font-display text-3xl font-semibold tabular-nums">
             <motion.span key={index} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="inline-block">
               {String(index + 1).padStart(2, "0")}
             </motion.span>
             <span className="text-ink-foreground/40 text-xl"> / {String(PHOTOS.length).padStart(2, "0")}</span>
           </div>
-          <div className="grid min-w-0 flex-1 grid-cols-5 sm:grid-cols-10 gap-x-2">
+          <div className="grid min-w-0 flex-1 grid-cols-5 sm:grid-cols-7 lg:flex gap-x-2">
             {PHOTOS.map((p, i) => (
               <button
                 key={p.alt}
                 onClick={() => setState([i, i > index ? 1 : -1])}
                 aria-label={`${t.impression.label} ${i + 1}`}
                 aria-current={i === index ? "true" : undefined}
-                className="group min-w-0 py-3"
+                className="group min-w-0 flex-1 py-3"
               >
                 <span className="block h-[3px] w-full overflow-hidden rounded-full bg-ink-foreground/20">
                   <motion.span

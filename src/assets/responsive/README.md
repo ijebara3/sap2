@@ -4,8 +4,9 @@ variants, encoded at quality 82. `src/lib/studio-images.ts` supplies responsive
 image attributes; browsers download only the variant they need.
 
 Gallery images 1–4 retain the original gallery order (source photos 1, 3, 4, 2).
-The six additional gallery images are detail crops of the existing photographs,
-not photographs of other studios.
+The former six additional gallery images are detail crops of the existing
+photographs. They remain archived here, but are no longer bundled or displayed.
+The current gallery adds ten supplied photographs from `../impressie/` instead.
 
 Crop coordinates below are fractions of the original image dimensions. Crop
 width and height use the same fraction to retain the original 3:2 aspect ratio.

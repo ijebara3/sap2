@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Reproducible audit sources are tracked; generated screenshots/reports stay local.
+testing/artifacts/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

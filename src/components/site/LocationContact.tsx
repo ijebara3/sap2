@@ -7,13 +7,13 @@ const MAP_SRC =
   "https://www.google.com/maps?q=Oeverpad+300,+1068+PJ+Amsterdam,+Nederland&output=embed";
 
 const LocationContact = () => {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["6%", "-6%"]);
 
-  const addressLines = ["Oeverpad 300", "1068 PJ Amsterdam", t.location.name === "Amsterdam Studio Podcast" ? "Nederland" : "Netherlands"];
+  const addressLines = ["Oeverpad 300", "1068 PJ Amsterdam", lang === "nl" ? "Nederland" : "Netherlands"];
 
   return (
     <section id="locatie" className="bg-background py-16 sm:py-24 lg:py-32">

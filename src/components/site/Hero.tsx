@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { CAL_URL } from "@/i18n/translations";
@@ -9,11 +9,27 @@ import { studioImages } from "@/lib/studio-images";
 const Hero = () => {
   const { t } = useLang();
   const [videoFailed, setVideoFailed] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoAvailable, setVideoAvailable] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    // The hosted asset route can return the SPA's HTML on other deployments.
+    // Keep the photo visible and avoid handing that HTML response to a video decoder.
+    void fetch(heroVideo.url, { method: "HEAD", signal: controller.signal }).then((response) => {
+      const type = response.headers.get("content-type") || "";
+      if ((response.ok && !/^(text\/|application\/json)/i.test(type)) || response.status === 405 || response.status === 501) {
+        setVideoAvailable(true);
+      }
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const { scrollYProgress: exitProgress } = useScroll({ target: ref, offset: ["end end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "18%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, reduce ? 1 : 0]);
+  // Tall mobile heroes must remain readable until their bottom reaches the viewport.
+  const opacity = useTransform(exitProgress, [0, 0.8], [1, reduce ? 1 : 0]);
 
   const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -25,14 +41,17 @@ const Hero = () => {
           sizes="100vw"
           alt=""
           aria-hidden="true"
-          fetchPriority="high"
+          {...{ fetchpriority: "high" }}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <video
-          className="relative h-full w-full object-cover"
+        {videoAvailable && <video
+          className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+          style={{ opacity: videoPlaying && !videoFailed ? 1 : 0 }}
           src={heroVideo.url}
           poster={studioImages[0].src}
           hidden={videoFailed}
+          onPlaying={() => setVideoPlaying(true)}
+          onPause={() => setVideoPlaying(false)}
           onError={() => setVideoFailed(true)}
           autoPlay
           loop
@@ -40,7 +59,7 @@ const Hero = () => {
           playsInline
           preload="metadata"
           aria-hidden="true"
-        />
+        />}
         <div
           className="absolute inset-0"
           style={{
@@ -122,14 +141,18 @@ const Hero = () => {
       <motion.button
         onClick={() => document.getElementById("book-arrive-record")?.scrollIntoView({ behavior: "smooth" })}
         style={{ opacity }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.8 }}
         className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-2 text-ink-foreground/80"
         aria-label={t.hero.scroll}
       >
-        <span className="text-xs uppercase tracking-[0.2em] font-semibold">{t.hero.scroll}</span>
-        <ArrowDown className="h-4 w-4 animate-scroll-hint" />
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.8 }}
+          className="flex flex-col items-center gap-2"
+        >
+          <span className="text-xs uppercase tracking-[0.2em] font-semibold">{t.hero.scroll}</span>
+          <ArrowDown className="h-4 w-4 animate-scroll-hint" />
+        </motion.span>
       </motion.button>
     </section>
   );

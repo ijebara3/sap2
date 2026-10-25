@@ -1,16 +1,25 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/i18n/LanguageContext";
 import { studioImages } from "@/lib/studio-images";
+import { usePreparedImage } from "@/hooks/use-prepared-image";
 
 const IMAGES = [0, 3, 1, 3, 2, 0, 2].map((i) => studioImages[i]);
+const IMAGE_SIZES = "(min-width: 1400px) 490px, (min-width: 1024px) 38vw, calc(100vw - 48px)";
 
 const Included = () => {
   const { t } = useLang();
   const [active, setActive] = useState(0);
+  const pointer = useRef<{ x: number; y: number } | null>(null);
+  const visibleIndex = usePreparedImage(active, IMAGES, IMAGE_SIZES);
 
   return (
-    <section id="inbegrepen" className="bg-surface text-surface-foreground py-16 sm:py-24 lg:py-32">
+    <section
+      id="inbegrepen"
+      onPointerDown={(event) => { pointer.current = { x: event.clientX, y: event.clientY }; }}
+      onPointerMove={(event) => { pointer.current = { x: event.clientX, y: event.clientY }; }}
+      className="bg-surface text-surface-foreground py-16 sm:py-24 lg:py-32"
+    >
       <div className="container mx-auto px-6 lg:px-10">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -34,31 +43,40 @@ const Included = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.6 }}
                   transition={{ duration: 0.5, delay: (i % 4) * 0.06 }}
-                  onMouseEnter={() => setActive(i)}
-                  onFocus={() => setActive(i)}
-                  onClick={() => setActive(i)}
-                  tabIndex={0}
-                  className={`group border-b border-border py-6 smooth-hover cursor-default outline-none ${
-                    active === i ? "pl-3" : "pl-0"
-                  }`}
+                  onPointerMove={(event) => {
+                    // WebKit also emits stationary pointer moves when the page scrolls.
+                    const moved = pointer.current?.x !== event.clientX || pointer.current?.y !== event.clientY;
+                    if (event.pointerType === "mouse" && moved && active !== i) setActive(i);
+                  }}
+                  className="border-b border-border"
                 >
-                  <div className="flex items-baseline gap-5">
-                    <span
-                      className={`font-display text-sm font-semibold tabular-nums smooth-hover ${
-                        active === i ? "text-primary" : "text-muted-foreground"
-                      }`}
-                    >
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="text-xl md:text-2xl font-semibold leading-snug">
-                        <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_2px] bg-left-bottom bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_2px]">
-                          {item.title}
-                        </span>
-                      </h3>
-                      <p className="mt-2 text-[17px] leading-relaxed text-muted-foreground max-w-xl">{item.body}</p>
+                  <button
+                    type="button"
+                    onFocus={() => setActive(i)}
+                    onClick={() => setActive(i)}
+                    aria-pressed={active === i}
+                    className={`group block w-full py-6 text-left smooth-hover cursor-default outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ${
+                      active === i ? "pl-3" : "pl-0"
+                    }`}
+                  >
+                    <div className="flex items-baseline gap-5">
+                      <span
+                        className={`font-display text-sm font-semibold tabular-nums smooth-hover ${
+                          active === i ? "text-primary" : "text-muted-foreground"
+                        }`}
+                      >
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="text-xl md:text-2xl font-semibold leading-snug">
+                          <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_2px] bg-left-bottom bg-no-repeat transition-[background-size] duration-500 group-hover:bg-[length:100%_2px]">
+                            {item.title}
+                          </span>
+                        </h3>
+                        <p className="mt-2 text-[17px] leading-relaxed text-muted-foreground max-w-xl">{item.body}</p>
+                      </div>
                     </div>
-                  </div>
+                  </button>
                 </motion.li>
               ))}
             </ul>
@@ -68,10 +86,10 @@ const Included = () => {
             <div className="lg:sticky lg:top-28 relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/5] overflow-hidden rounded-lg shadow-lift bg-ink">
               <AnimatePresence mode="wait">
                 <motion.img
-                  key={active}
-                  {...IMAGES[active % IMAGES.length]}
-                  sizes="(min-width: 1400px) 490px, (min-width: 1024px) 38vw, calc(100vw - 48px)"
-                  alt={t.included.items[active].title}
+                  key={visibleIndex}
+                  {...IMAGES[visibleIndex]}
+                  sizes={IMAGE_SIZES}
+                  alt={t.included.items[visibleIndex].title}
                   loading="lazy"
                   decoding="async"
                   initial={{ opacity: 0, scale: 1.06 }}
@@ -82,7 +100,7 @@ const Included = () => {
                 />
               </AnimatePresence>
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent p-6">
-                <p className="text-ink-foreground text-lg font-semibold">{t.included.items[active].title}</p>
+                <p className="text-ink-foreground text-lg font-semibold">{t.included.items[visibleIndex].title}</p>
               </div>
             </div>
           </div>
