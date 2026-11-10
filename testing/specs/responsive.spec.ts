@@ -4,7 +4,37 @@ import { center, imageLoaded, monitor, noOverflow, opaque, saveEvidence, saveScr
 test("device audit: layouts, media, controls, languages and every route", async ({ page }, info) => {
   const evidence = monitor(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.locator("main > section")).toHaveCount(10);
+  await expect(page).toHaveTitle("Podcaststudio huren in Amsterdam vanaf €99 | Amsterdam Studio Podcast");
+  await expect(page.locator("html")).toHaveAttribute("lang", "nl");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /podcaststudio in Amsterdam/);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://studioamsterdampodgast.nl/");
+  await expect(page.locator("main h1")).toHaveCount(1);
+  const schemaText = await page.locator("#business-schema").textContent();
+  const business = JSON.parse(schemaText || "null");
+  expect(business).toMatchObject({
+    "@type": "LocalBusiness",
+    name: "Amsterdam Studio Podcast",
+    url: "https://studioamsterdampodgast.nl/",
+    email: "info@studioamsterdampodgast.nl",
+    address: { streetAddress: "Oeverpad 300", postalCode: "1068 PJ", addressLocality: "Amsterdam", addressCountry: "NL" },
+  });
+  const robotsResponse = await page.request.get("/robots.txt");
+  expect(robotsResponse.ok()).toBe(true);
+  expect(await robotsResponse.text()).toContain("Sitemap: https://studioamsterdampodgast.nl/sitemap.xml");
+  const sitemapResponse = await page.request.get("/sitemap.xml");
+  expect(sitemapResponse.ok()).toBe(true);
+  const sitemap = await sitemapResponse.text();
+  const sitemapData = await page.evaluate((xml) => {
+    const document = new DOMParser().parseFromString(xml, "application/xml");
+    return {
+      invalid: document.querySelector("parsererror") !== null,
+      locations: [...document.querySelectorAll("url > loc")].map((location) => location.textContent),
+    };
+  }, sitemap);
+  expect(sitemapData.invalid).toBe(false);
+  expect(sitemapData.locations).toEqual(["https://studioamsterdampodgast.nl/"]);
+  await expect(page.locator("main > section")).toHaveCount(11);
   await page.evaluate(() => document.fonts.ready);
   await imageLoaded(page.locator("main > section img").first());
   await opaque(page.locator("main > section h1").first());
@@ -134,6 +164,12 @@ test("device audit: layouts, media, controls, languages and every route", async 
 
   await page.getByRole("button", { name: "EN", exact: true }).first().click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveTitle("Podcast Studio Rental in Amsterdam from €99 | Amsterdam Studio Podcast");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Rent a professional podcast studio in Amsterdam/);
+  await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "en_NL");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", /Podcast Studio Rental/);
+  await expect(page.locator("#impressie h2")).toHaveText("Gallery");
+  await expect(page.locator("#impressie img")).toHaveAttribute("alt", /Recording table|Podcast studio/);
   for (const heading of await page.locator("main section h1,main section h2").all()) { await center(heading); await opaque(heading); await noOverflow(page); }
   await expect(page.locator("#locatie address")).toContainText("Netherlands");
   const bookingLinks = page.locator('a[href^="https://cal.com"]');
@@ -148,11 +184,24 @@ test("device audit: layouts, media, controls, languages and every route", async 
     await page.goto(route, { waitUntil: "domcontentloaded" });
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page).toHaveTitle(route === "/privacy"
+      ? "Privacy | Amsterdam Studio Podcast"
+      : route === "/voorwaarden"
+        ? "Terms | Amsterdam Studio Podcast"
+        : "Page not found | Amsterdam Studio Podcast");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+    await expect(page.locator('meta[name="description"]')).toHaveCount(0);
+    await expect(page.locator("#business-schema")).toHaveCount(0);
     await noOverflow(page);
     await saveScreenshot(page, info, `route-${route.slice(1)}-full`);
   }
-  await page.getByRole("link", { name: "Return to Home" }).click();
-  await expect(page.locator("main > section")).toHaveCount(10);
+  await page.getByRole("link", { name: "Back to home" }).click();
+  await expect(page.locator("main > section")).toHaveCount(11);
+  await expect(page.locator("#business-schema")).toHaveCount(1);
+  expect(JSON.parse(await page.locator("#business-schema").textContent() || "null")["@type"]).toBe("LocalBusiness");
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await saveEvidence(info, "device-audit", { project: info.project.metadata, geometry, ...evidence });
   expect(evidence.runtimeErrors).toEqual([]);

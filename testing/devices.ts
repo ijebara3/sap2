@@ -13,11 +13,15 @@ export const profiles = names.flatMap((name) => ["portrait", "landscape"].map((o
   options: { ...devices["Desktop Chrome"], viewport: { width, height: width === 1920 ? 1080 : 900 } },
 })));
 
-export const projects: Project[] = (["chromium", "firefox", "webkit"] as BrowserName[]).flatMap((browserName) =>
+export const projects: Project[] = [...(["chromium", "firefox", "webkit"] as BrowserName[]).flatMap((browserName) =>
   profiles.map((profile) => ({
     name: `${browserName}-${profile.name}`,
     metadata: { device: profile.label, orientation: profile.orientation, viewport: profile.options.viewport, mobileEmulation: browserName !== "firefox" },
-    testMatch: ["**/responsive.spec.ts", ...(/(iphone-15-portrait|ipad-mini-portrait|desktop-1440)$/.test(profile.name) ? ["**/gallery.spec.ts"] : []), ...(profile.name === "desktop-1440" ? ["**/media.spec.ts"] : [])],
+    testMatch: ["**/responsive.spec.ts", ...(/(iphone-15-portrait|ipad-mini-portrait|desktop-1440)$/.test(profile.name) ? ["**/gallery.spec.ts", "**/studio-proof.spec.ts"] : []), ...(profile.name === "desktop-1440" ? ["**/media.spec.ts"] : [])],
     use: { ...profile.options, browserName, ...(browserName === "firefox" ? { isMobile: false } : {}) },
   })),
-);
+), ...[320, 375, 390, 430, 768, 1024, 1440, 1920].map((width) => ({
+  name: `chromium-recent-${width}`,
+  testMatch: ["**/studio-proof.spec.ts"],
+  use: { ...devices["Desktop Chrome"], browserName: "chromium" as const, viewport: { width, height: width >= 1024 ? 1000 : 900 } },
+}))];

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Nav from "@/components/site/Nav";
 import Hero from "@/components/site/Hero";
+import StudioProof from "@/components/site/StudioProof";
 import Motto from "@/components/site/Motto";
 import Studio from "@/components/site/Studio";
 import Included from "@/components/site/Included";
@@ -29,8 +30,8 @@ const Index = () => {
     <div className="min-h-screen overflow-x-clip">
       <Nav />
       <main>
-        <h1 className="sr-only">Podcaststudio Amsterdam — professionele podcast opnemen aan het Oeverpad</h1>
         <Hero />
+        <StudioProof />
         <Motto />
         <Studio />
         <Included />

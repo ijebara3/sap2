@@ -19,10 +19,23 @@ const nl = {
     title1: "Jouw podcast,",
     title2: "professioneel opgenomen",
     title3: "in Amsterdam",
-    sub: "De complete opnameset staat klaar: microfoons, camera's en licht. Jij hoeft alleen te gaan zitten.",
+    sub: "Huur een professionele podcaststudio in Amsterdam. De complete audio- en video-opnameset staat klaar: microfoons, camera's en licht.",
     cta: "Boek nu",
     ctaSecondary: "Bekijk de studio",
     scroll: "Scroll",
+  },
+  studioProof: {
+    label: "Bekend in de studio",
+    title: "Hier gingen al bijzondere gasten voor de microfoon zitten.",
+    body: "Van gesprekken tot videocasts — dezelfde studio staat ook voor jouw opname klaar.",
+    cta: "Boek jouw studiosessie",
+    filmLabel: "Studio in beeld",
+    videoLabel: "Studiofilm met beelden van de echte podcaststudio",
+    primaryAlt: "Een gast in gesprek in de podcaststudio",
+    secondaryAlt: "Een gast tijdens een opname aan tafel in de studio",
+    note: "Dit is waar verhalen samenkomen.",
+    pause: "Pauzeer de studiofilm",
+    play: "Speel de studiofilm af",
   },
   motto: {
     intro: "Het idee",
@@ -55,6 +68,8 @@ const nl = {
     sub: "Een kijkje in de studio.",
     prev: "Vorige",
     next: "Volgende",
+    pause: "Pauzeer de diavoorstelling",
+    play: "Hervat de diavoorstelling",
   },
   how: {
     label: "Hoe werkt het",
@@ -122,6 +137,10 @@ const nl = {
     termsBody: "Deze pagina wordt binnenkort aangevuld met onze voorwaarden. Heb je nu al een vraag? Mail ons gerust.",
     back: "Terug naar home",
   },
+  notFound: {
+    message: "Deze pagina bestaat niet.",
+    back: "Terug naar home",
+  },
 };
 
 const en: typeof nl = {
@@ -141,10 +160,23 @@ const en: typeof nl = {
     title1: "Your podcast,",
     title2: "professionally recorded",
     title3: "in Amsterdam",
-    sub: "The full recording setup is ready: microphones, cameras and lighting. All you do is sit down.",
+    sub: "Rent a professional podcast studio in Amsterdam. The complete audio and video setup is ready, with microphones, cameras and lighting.",
     cta: "Book now",
     ctaSecondary: "See the studio",
     scroll: "Scroll",
+  },
+  studioProof: {
+    label: "Seen in the studio",
+    title: "Some remarkable guests have already taken a seat behind these microphones.",
+    body: "From conversations to videocasts — the same studio is ready for your recording, too.",
+    cta: "Book your studio session",
+    filmLabel: "Inside the studio",
+    videoLabel: "Studio film showing the actual podcast studio",
+    primaryAlt: "A guest in conversation in the podcast studio",
+    secondaryAlt: "A guest recording at the table in the studio",
+    note: "This is where stories come together.",
+    pause: "Pause the studio film",
+    play: "Play the studio film",
   },
   motto: {
     intro: "The idea",
@@ -172,11 +204,13 @@ const en: typeof nl = {
     ],
   },
   impression: {
-    label: "Impression",
-    title: "Impressie",
+    label: "Gallery",
+    title: "Gallery",
     sub: "A look inside the studio.",
     prev: "Previous",
     next: "Next",
+    pause: "Pause the slideshow",
+    play: "Resume the slideshow",
   },
   how: {
     label: "How it works",
@@ -242,6 +276,10 @@ const en: typeof nl = {
     privacyBody: "This page will soon hold our privacy policy. Any question about your data in the meantime? Just email us.",
     termsTitle: "Terms",
     termsBody: "This page will soon hold our terms. Any question in the meantime? Just email us.",
+    back: "Back to home",
+  },
+  notFound: {
+    message: "This page could not be found.",
     back: "Back to home",
   },
 };

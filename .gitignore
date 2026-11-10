@@ -15,6 +15,9 @@ dist-ssr
 # Reproducible audit sources are tracked; generated screenshots/reports stay local.
 testing/artifacts/
 
+# Local design-preview work; production source is separate.
+.superdesign/tmp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

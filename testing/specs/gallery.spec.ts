@@ -41,3 +41,53 @@ test("all 14 photos, arrows, indicators, keyboard, swipe and real autoplay", asy
   await imageLoaded(page.locator("#impressie img").last());
   await saveEvidence(info, "gallery", { files, autoplayObservedAfterVisibleTransitionMs: elapsed, swipe: browserName === "chromium" && info.project.use.hasTouch ? "CDP native touch" : "pointer drag (native touch injection unavailable in this engine)" });
 });
+
+test("gallery can be paused and resumed with the keyboard in both languages", async ({ page }) => {
+  await page.goto("/");
+  const region = page.locator('#impressie [role="region"]');
+  await center(region);
+  const pause = page.getByRole("button", { name: "Pauzeer de diavoorstelling", exact: true });
+  await pause.focus();
+  await page.keyboard.press("Space");
+  const resume = page.getByRole("button", { name: "Hervat de diavoorstelling", exact: true });
+  await expect(resume).toHaveAttribute("aria-pressed", "true");
+  const before = await page.locator("#impressie [aria-current]").getAttribute("aria-label");
+  await center(region);
+  await page.waitForTimeout(3500);
+  await expect(page.locator("#impressie [aria-current]")).toHaveAttribute("aria-label", before!);
+  await region.focus();
+  await page.keyboard.press("ArrowRight");
+  await visibleGallery(page, Number(before!.split(" ").pop()) % 14 + 1);
+  await page.locator("header").getByRole("button", { name: "EN", exact: true }).click();
+  const englishResume = page.getByRole("button", { name: "Resume the slideshow", exact: true });
+  await page.keyboard.press("Tab");
+  await englishResume.focus();
+  await expect(englishResume).toHaveCSS("outline-style", "solid");
+  await page.keyboard.press("Space");
+  await expect(page.getByRole("button", { name: "Pause the slideshow", exact: true })).toHaveAttribute("aria-pressed", "false");
+  await center(region);
+  const current = await page.locator("#impressie [aria-current]").getAttribute("aria-label");
+  await expect(page.locator("#impressie [aria-current]")).not.toHaveAttribute("aria-label", current!, { timeout: 5000 });
+});
+
+test("reduced motion keeps gallery static and studio layers still while manual controls work", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const region = page.locator('#impressie [role="region"]');
+  await center(region);
+  await visibleGallery(page, 1);
+  await expect(page.getByRole("button", { name: "Pauzeer de diavoorstelling", exact: true })).toHaveCount(0);
+  await page.waitForTimeout(3500);
+  await visibleGallery(page, 1);
+  await region.focus();
+  await page.keyboard.press("ArrowRight");
+  await visibleGallery(page, 2);
+  const layers = page.locator("#studio img");
+  for (const layer of await layers.all()) {
+    if (!await layer.isVisible()) continue;
+    await center(layer);
+    const transform = await layer.evaluate(image => getComputedStyle(image.parentElement!).transform);
+    expect(["none", "matrix(1, 0, 0, 1, 0, 0)"]).toContain(transform);
+    await expect(layer.locator("..")).toHaveCSS("opacity", "1");
+  }
+});

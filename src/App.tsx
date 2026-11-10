@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
+import SeoMetadata from "./components/SeoMetadata";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <SeoMetadata />
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />

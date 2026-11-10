@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useInView, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { useLang } from "@/i18n/LanguageContext";
 import { studioImages, fullWidthImageSizes } from "@/lib/studio-images";
 import { impressionImages } from "@/lib/impression-images";
@@ -8,30 +9,31 @@ import { prepareImage } from "@/lib/responsive-image";
 import { usePreparedImage } from "@/hooks/use-prepared-image";
 
 const PHOTOS = [
-  { ...studioImages[0], alt: "Opnametafel met twee microfoons en camera in de studio" },
-  { ...studioImages[2], alt: "Zithoek van de podcaststudio met studioverlichting" },
-  { ...studioImages[3], alt: "Camera op statief gericht op de opnameplek" },
-  { ...studioImages[1], alt: "Detailopname van een professionele studiomicrofoon" },
-  { ...impressionImages[0], alt: "Vier microfoons rond de opnametafel met blauwe bloemen" },
-  { ...impressionImages[1], alt: "Microfoon bij de zithoek met het studiobanner op de achtergrond" },
-  { ...impressionImages[2], alt: "Overzicht van de zithoek met fauteuil, bank en studiomicrofoons" },
-  { ...impressionImages[3], alt: "Bank met twee microfoons en blauwe bloemen op de salontafel" },
-  { ...impressionImages[4], alt: "Zithoek naast de houten kast en plant" },
-  { ...impressionImages[5], alt: "Opnametafel met vier microfoons en audioapparatuur vanuit de zijkant" },
-  { ...impressionImages[6], alt: "Microfoons en blauwe bloemen voor het scherm in de studio" },
-  { ...impressionImages[7], alt: "Close-up van een RODE-microfoon met het mengpaneel op de achtergrond" },
-  { ...impressionImages[8], alt: "Volledige opnametafel met stoelen tussen de twee studiobanners" },
-  { ...impressionImages[9], alt: "Ruim overzicht van de opnametafel, stoelen en studio-inrichting" },
+  { ...studioImages[0], alt: { nl: "Opnametafel met twee microfoons en camera", en: "Recording table with two microphones and a camera" } },
+  { ...studioImages[2], alt: { nl: "Zithoek van de podcaststudio met studioverlichting", en: "Podcast studio seating area with studio lighting" } },
+  { ...studioImages[3], alt: { nl: "Camera op statief gericht op de opnameplek", en: "Camera on a tripod facing the recording area" } },
+  { ...studioImages[1], alt: { nl: "Detailopname van een professionele studiomicrofoon", en: "Close-up of a professional studio microphone" } },
+  { ...impressionImages[0], alt: { nl: "Vier microfoons rond de opnametafel met blauwe bloemen", en: "Four microphones around the recording table with blue flowers" } },
+  { ...impressionImages[1], alt: { nl: "Microfoon bij de zithoek met het studiobanner op de achtergrond", en: "Microphone by the seating area with the studio banner behind it" } },
+  { ...impressionImages[2], alt: { nl: "Zithoek met fauteuil, bank en studiomicrofoons", en: "Seating area with an armchair, sofa and studio microphones" } },
+  { ...impressionImages[3], alt: { nl: "Bank met twee microfoons en bloemen op de salontafel", en: "Sofa with two microphones and flowers on the coffee table" } },
+  { ...impressionImages[4], alt: { nl: "Zithoek naast een houten kast en plant", en: "Seating area beside a wooden cabinet and plant" } },
+  { ...impressionImages[5], alt: { nl: "Opnametafel met vier microfoons en audioapparatuur", en: "Recording table with four microphones and audio equipment" } },
+  { ...impressionImages[6], alt: { nl: "Microfoons en blauwe bloemen voor het studioscherm", en: "Microphones and blue flowers in front of the studio display" } },
+  { ...impressionImages[7], alt: { nl: "Close-up van een RODE-microfoon en mengpaneel", en: "Close-up of a RODE microphone and audio mixer" } },
+  { ...impressionImages[8], alt: { nl: "Opnametafel met stoelen tussen twee studiobanners", en: "Recording table and chairs between two studio banners" } },
+  { ...impressionImages[9], alt: { nl: "Overzicht van de opnametafel, stoelen en studio-inrichting", en: "View of the recording table, chairs and studio interior" } },
 ];
 
 const Impressie = () => {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const reduce = useReducedMotion();
   const [[index, dir], setState] = useState<[number, number]>([0, 0]);
   const visibleIndex = usePreparedImage(index, PHOTOS, fullWidthImageSizes);
   const galleryRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(galleryRef, { amount: 0.25 });
   const [isInteracting, setIsInteracting] = useState(false);
+  const [pausedByUser, setPausedByUser] = useState(false);
   const [isHidden, setIsHidden] = useState(document.hidden);
 
   useEffect(() => {
@@ -41,14 +43,14 @@ const Impressie = () => {
   }, []);
 
   useEffect(() => {
-    if (!isInView || isInteracting || isHidden || visibleIndex !== index) return;
+    if (reduce || pausedByUser || !isInView || isInteracting || isHidden || visibleIndex !== index) return;
     // Warm only the next responsive image so automatic transitions do not flash blank.
     void prepareImage(PHOTOS[(index + 1) % PHOTOS.length], fullWidthImageSizes);
     const timer = window.setTimeout(() => {
       setState(([i]) => [(i + 1) % PHOTOS.length, 1]);
     }, 3000);
     return () => window.clearTimeout(timer);
-  }, [index, visibleIndex, dir, isInView, isInteracting, isHidden]);
+  }, [index, visibleIndex, dir, isInView, isInteracting, isHidden, reduce, pausedByUser]);
 
   const paginate = (delta: number) =>
     setState(([i]) => [(i + delta + PHOTOS.length) % PHOTOS.length, delta]);
@@ -58,10 +60,10 @@ const Impressie = () => {
       <div className="container mx-auto px-6 lg:px-10">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <motion.div
-            initial={{ opacity: 0, y: 22 }}
+            initial={reduce ? false : { opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: reduce ? 0 : 0.7 }}
           >
             <span className="section-label text-primary">{t.impression.label}</span>
             <h2 className="mt-4 text-4xl md:text-6xl font-semibold leading-none">{t.impression.title}</h2>
@@ -69,6 +71,17 @@ const Impressie = () => {
           </motion.div>
 
           <div className="flex items-center gap-3">
+            {!reduce && (
+              <button
+                type="button"
+                onClick={() => setPausedByUser((paused) => !paused)}
+                aria-label={pausedByUser ? t.impression.play : t.impression.pause}
+                aria-pressed={pausedByUser}
+                className="h-12 w-12 rounded-full border border-ink-border flex items-center justify-center smooth-hover hover:bg-ink-foreground/10 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              >
+                {pausedByUser ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+              </button>
+            )}
             <button
               onClick={() => paginate(-1)}
               aria-label={t.impression.prev}
@@ -122,6 +135,7 @@ const Impressie = () => {
             >
               <img
                 {...PHOTOS[visibleIndex]}
+                alt={PHOTOS[visibleIndex].alt[lang]}
                 sizes={fullWidthImageSizes}
                 loading="lazy"
                 decoding="async"
@@ -135,15 +149,15 @@ const Impressie = () => {
 
         <div className="mt-6 sm:mt-8 flex items-center gap-4 sm:gap-6">
           <div className="shrink-0 font-display text-3xl font-semibold tabular-nums">
-            <motion.span key={index} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="inline-block">
+            <motion.span key={index} initial={reduce ? false : { y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: reduce ? 0 : 0.3 }} className="inline-block">
               {String(index + 1).padStart(2, "0")}
             </motion.span>
             <span className="text-ink-foreground/40 text-xl"> / {String(PHOTOS.length).padStart(2, "0")}</span>
           </div>
           <div className="grid min-w-0 flex-1 grid-cols-5 sm:grid-cols-7 lg:flex gap-x-2">
-            {PHOTOS.map((p, i) => (
+            {PHOTOS.map((_, i) => (
               <button
-                key={p.alt}
+                key={i}
                 onClick={() => setState([i, i > index ? 1 : -1])}
                 aria-label={`${t.impression.label} ${i + 1}`}
                 aria-current={i === index ? "true" : undefined}
@@ -154,7 +168,7 @@ const Impressie = () => {
                     className="block h-full bg-primary"
                     initial={false}
                     animate={{ width: i === index ? "100%" : "0%" }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </span>
               </button>
